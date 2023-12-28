@@ -7,27 +7,41 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const url = "https://swapi.dev/api/people";
-const arrayOfCharacters = [];
-function getCharacters() {
+const apiUrl = "https://swapi.dev/api/people";
+function fetchStarWarsPeople() {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const response = yield fetch("https://swapi.dev/api/people");
-            console.log(response);
-            if (response.status === 200) {
-                const data = yield response
-                    .json()
-                    .then((characters) => characters.forEach((character) => arrayOfCharacters.push(character)));
-                return data;
+            const response = yield fetch(apiUrl);
+            if (!response.ok) {
+                throw new Error(`API request failed with status ${response.status}`);
             }
-            else {
-                throw Error("Något gick fel, försök igen senare");
-            }
+            const data = yield response.json();
+            return data.results;
         }
         catch (error) {
-            console.log(error);
+            console.error("Error fetching Star Wars people:", error.message);
+            throw error;
         }
     });
 }
-console.log(getCharacters());
-console.log(arrayOfCharacters);
+fetchStarWarsPeople()
+    .then((people) => {
+    console.log("Star Wars people:", people);
+    people.forEach((p) => {
+        const element = document.createElement("p");
+        element.innerHTML = p.name;
+        element.addEventListener("click", () => {
+            const name = document.querySelector(".name");
+            name.innerHTML = p.name;
+            const height = document.querySelector(".height");
+            height.innerHTML = p.height;
+            const mass = document.querySelector(".mass");
+            mass.innerHTML = p.mass;
+        });
+        div.appendChild(element);
+    });
+})
+    .catch((error) => {
+    console.error("API call failed:", error);
+});
+const div = document.querySelector(".characters");
